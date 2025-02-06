@@ -1,0 +1,25 @@
+# Ortam değişkenleri
+.env
+
+# Dependencies
+node_modules/
+
+# Log dosyaları
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# IDE ve editör dosyaları
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store 

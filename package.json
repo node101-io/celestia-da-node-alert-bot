@@ -1,0 +1,12 @@
+{
+  "name": "telegram-message-sender",
+  "version": "1.0.0",
+  "description": "Telegram mesaj gönderici",
+  "main": "src/sendTelegramMessages.js",
+  "dependencies": {
+    "croner": "^7.0.5",
+    "node-fetch": "^2.6.1",
+    "dotenv": "^16.0.3"
+  }
+} 
+

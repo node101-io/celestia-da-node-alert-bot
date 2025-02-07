@@ -1,12 +1,14 @@
 {
   "name": "telegram-message-sender",
+  "type": "module",
   "version": "1.0.0",
   "description": "Telegram mesaj gönderici",
   "main": "src/sendTelegramMessages.js",
+  "scripts": {
+    "start": "node src/scheduler.js"
+  },
   "dependencies": {
     "croner": "^7.0.5",
-    "node-fetch": "^2.6.1",
     "dotenv": "^16.0.3"
   }
-} 
-
+}

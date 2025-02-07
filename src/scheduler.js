@@ -1,9 +1,12 @@
-const { Cron } = require('croner');
+import { Cron } from 'croner';
 
-// Her 5 saniyede bir çalışacak cron job
-const job = new Cron('*/5 * * * * *', () => {
-    console.log('test');
+const BLOCK_HEIGHT_DIFFERENCE_THRESHOLD = 5;
+const BLOCK_HEIGHT_DIFFERENCE_CONSECUTIVE_THRESHOLD = 50;
+
+new Cron('*/5 * * * * *', () => {
+  console.log('test');
+
+  // processLatestBlockFromAPI ve processLatestBlockFromLocal fonksiyonlarını çağırarak blok yüksekliğini alın
+  // Eğer iki blok yüksekliği farkı BLOCK_HEIGHT_DIFFERENCE_THRESHOLD değerinden büyükse, bir mesaj gönderin
+  // Eğer iki blok yüksekliği farkı BLOCK_HEIGHT_DIFFERENCE_CONSECUTIVE_THRESHOLD değerinden büyükse, başka bir bir mesaj gönderin
 });
-
-// Programın sürekli çalışması için
-process.stdin.resume(); 

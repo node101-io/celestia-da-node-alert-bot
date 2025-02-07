@@ -1,6 +1,7 @@
 const remoteRpcUrl = 'https://rpc.celestia.pops.one/status';
 const localRpcUrl = '127.0.0.1:26657/status';
 
+// TODO: rpc çalışmıyorsa diğer rpc'yi dene
 export const processLatestBlockFromAPI = async () => {
   try {
     const request = await fetch(remoteRpcUrl);

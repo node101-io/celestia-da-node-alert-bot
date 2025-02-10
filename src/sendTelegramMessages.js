@@ -22,4 +22,5 @@ const sendTelegramMessage = async (message) => {
   };
 };
 
+
 export default sendTelegramMessage;

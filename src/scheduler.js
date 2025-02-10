@@ -1,12 +1,18 @@
 import { Cron } from 'croner';
+import { compareBlockHeights } from './rpcBlock.js';
+import sendTelegramMessage from './sendTelegramMessages.js';
 
-const BLOCK_HEIGHT_DIFFERENCE_THRESHOLD = 5;
-const BLOCK_HEIGHT_DIFFERENCE_CONSECUTIVE_THRESHOLD = 50;
+new Cron('*/5 * * * * *', async () => {
+  const result = await compareBlockHeights();
+  
+  if (!result.success) {
+    console.log('❌ RPC Kontrol Hatası: ' + result.message);
+    await sendTelegramMessage('❌ RPC Kontrol Hatası: ' + result.message);
+    return;
+  }
 
-new Cron('*/5 * * * * *', () => {
-  console.log('test');
-
-  // processLatestBlockFromAPI ve processLatestBlockFromLocal fonksiyonlarını çağırarak blok yüksekliğini alın
-  // Eğer iki blok yüksekliği farkı BLOCK_HEIGHT_DIFFERENCE_THRESHOLD değerinden büyükse, bir mesaj gönderin
-  // Eğer iki blok yüksekliği farkı BLOCK_HEIGHT_DIFFERENCE_CONSECUTIVE_THRESHOLD değerinden büyükse, başka bir bir mesaj gönderin
+  if (result.message) {
+    console.log(result.message);
+    await sendTelegramMessage(result.message);
+  }
 });

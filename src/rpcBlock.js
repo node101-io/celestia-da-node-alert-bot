@@ -3,9 +3,8 @@ dotenv.config();
 const BLOCK_HEIGHT_DIFFERENCE_THRESHOLD = 5;
 const BLOCK_HEIGHT_DIFFERENCE_CONSECUTIVE_THRESHOLD = 50;
 
-// Son durumları saklayacak değişkenler
 let lastKnownLocalHeight = null;
-let wasNodeBehind = false;  // Node'un geride olup olmadığını takip etmek için
+let wasNodeBehind = false; 
 
 const getBlockHeightFromRemoteRPC = async (url) => {
   try {
@@ -40,7 +39,6 @@ export const processLatestBlockFromAPI = async () => {
     })
   );
 
-  // null olmayan en yüksek değeri bul
   const validHeights = heights.filter(h => h !== null);
   
   if (validHeights.length === 0) {
@@ -79,7 +77,7 @@ export const processLatestBlockFromLocal = async () => {
     return latest_block_height;
   } catch (err) {
     console.error('Yerel RPC blok verileri işlenirken bir hata oluştu:', err.message);
-    return lastKnownLocalHeight; // Hata durumunda son bilinen yüksekliği döndür
+    return lastKnownLocalHeight;
   }
 };
 
@@ -103,7 +101,6 @@ export const compareBlockHeights = async () => {
 
   const difference = Math.abs(remoteHeight - localHeight);
   
-  // Node geride değilse ve önceden gerideydi ise düzelme mesajı gönder
   if (difference < BLOCK_HEIGHT_DIFFERENCE_THRESHOLD && wasNodeBehind) {
     wasNodeBehind = false;
     return {
@@ -113,9 +110,8 @@ export const compareBlockHeights = async () => {
     };
   }
 
-  // Sadece 5'in katı olan farklar için uyarı gönder
   if (difference >= BLOCK_HEIGHT_DIFFERENCE_THRESHOLD && difference % 5 === 0) {
-    wasNodeBehind = true;  // Node'un geride olduğunu işaretle
+    wasNodeBehind = true; 
     if (difference >= BLOCK_HEIGHT_DIFFERENCE_CONSECUTIVE_THRESHOLD) {
       return {
         success: true,
@@ -136,7 +132,3 @@ export const compareBlockHeights = async () => {
     message: null
   };
 };
-
-  // processLatestBlockFromAPI ve processLatestBlockFromLocal fonksiyonlarını çağırarak blok yüksekliğini alın
-  // Eğer iki blok yüksekliği farkı BLOCK_HEIGHT_DIFFERENCE_THRESHOLD değerinden büyükse, bir mesaj gönderin
-  // Eğer iki blok yüksekliği farkı BLOCK_HEIGHT_DIFFERENCE_CONSECUTIVE_THRESHOLD değerinden büyükse, başka bir bir mesaj gönderin

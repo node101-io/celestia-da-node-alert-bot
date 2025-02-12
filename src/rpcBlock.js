@@ -42,12 +42,12 @@ export const processLatestBlockFromAPI = async () => {
   const validHeights = heights.filter(h => h !== null);
   
   if (validHeights.length === 0) {
-    console.error('Hiçbir remote RPC yanıt vermedi!');
+    console.error('No remote RPC responded!');
     return null;
   }
 
   const maxHeight = Math.max(...validHeights);
-  console.log('En yüksek blok:', maxHeight);
+  console.log('Highest block:', maxHeight);
   return maxHeight;
 };
 
@@ -72,11 +72,11 @@ export const processLatestBlockFromLocal = async () => {
     }
 
     const latest_block_height = parseInt(response.result.network_head_height);
-    lastKnownLocalHeight = latest_block_height; // Son blok yüksekliğini kaydet
-    console.log('Yerel RPC blok yüksekliği:', latest_block_height);
+    lastKnownLocalHeight = latest_block_height;
+    console.log('Local RPC block height:', latest_block_height);
     return latest_block_height;
   } catch (err) {
-    console.error('Yerel RPC blok verileri işlenirken bir hata oluştu:', err.message);
+    console.error('Error processing local RPC block data:', err.message);
     return lastKnownLocalHeight;
   }
 };
@@ -88,14 +88,14 @@ export const compareBlockHeights = async () => {
   if (!remoteHeight) {
     return {
       success: false,
-      message: 'Remote RPC sunucularından yanıt alınamıyor.'
+      message: 'No response from Remote RPC servers.'
     };
   }
 
   if (!localHeight) {
     return {
       success: true,
-      message: `⚠️ DİKKAT: Local node yanıt vermiyor! \nSon bilinen yerel blok: ${lastKnownLocalHeight || 'Bilinmiyor'}\nUzak Blok: ${remoteHeight}`
+      message: `⚠️ ATTENTION: Local node is not responding! \nLast known local block: ${lastKnownLocalHeight || 'Unknown'}\nRemote Block: ${remoteHeight}`
     };
   }
 
@@ -105,7 +105,7 @@ export const compareBlockHeights = async () => {
     wasNodeBehind = false;
     return {
       success: true,
-      message: `✅ Node senkronizasyonu düzeldi! \nYerel Blok: ${localHeight}\nUzak Blok: ${remoteHeight}`,
+      message: `✅ Node synchronization recovered! \nLocal Block: ${localHeight}\nRemote Block: ${remoteHeight}`,
       isRecovered: true
     };
   }
@@ -115,13 +115,13 @@ export const compareBlockHeights = async () => {
     if (difference >= BLOCK_HEIGHT_DIFFERENCE_CONSECUTIVE_THRESHOLD) {
       return {
         success: true,
-        message: `⚠️ KRİTİK UYARI: Node'unuz ${difference} blok geride kaldı! \nYerel Blok: ${localHeight}\nUzak Blok: ${remoteHeight}`,
+        message: `🔴🔴 CRITICAL WARNING: Your node is ${difference} blocks behind! \nLocal Block: ${localHeight}\nRemote Block: ${remoteHeight}`,
         isConsecutive: true
       };
     } else {
       return {
         success: true,
-        message: `⚠️ UYARI: Node'unuz ${difference} blok geride! \nYerel Blok: ${localHeight}\nUzak Blok: ${remoteHeight}`,
+        message: `🔴 WARNING: Your node is ${difference} blocks behind! \nLocal Block: ${localHeight}\nRemote Block: ${remoteHeight}`,
         isConsecutive: false
       };
     }

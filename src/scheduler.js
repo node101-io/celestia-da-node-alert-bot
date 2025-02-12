@@ -6,8 +6,8 @@ new Cron('*/5 * * * * *', async () => {
   const result = await compareBlockHeights();
   
   if (!result.success) {
-    console.log('❌ RPC Kontrol Hatası: ' + result.message);
-    await sendTelegramMessage('❌ RPC Kontrol Hatası: ' + result.message);
+    console.log('❌ RPC Check Error: ' + result.message);
+    await sendTelegramMessage('❌ RPC Check Error: ' + result.message);
     return;
   }
 

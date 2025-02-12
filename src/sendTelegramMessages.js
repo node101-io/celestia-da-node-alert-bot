@@ -11,13 +11,13 @@ const sendTelegramMessage = async (message) => {
     const data = await response.json();
 
     if (!data.ok) {
-      console.error('Telegram mesajı gönderilirken hata oluştu:', data);
+      console.error('Telegram message sending error:', data);
       return false;
     }
 
     return true;
   } catch (error) {
-    console.error('Mesaj gönderilirken hata oluştu:', error.message);
+    console.error('Telegram message sending error:', error.message);
     return false;
   };
 };

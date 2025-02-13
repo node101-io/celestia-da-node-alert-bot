@@ -68,22 +68,33 @@ export const processLatestBlockFromLocal = async () => {
 
     const response = await request.json();
     if (!response?.result?.network_head_height) {
-      throw new Error('Geçersiz API yanıt formatı');
+      throw new Error('Invalid API response format');
     }
 
     const latest_block_height = parseInt(response.result.network_head_height);
+    const isCatchingUp = !response.result.catch_up_done;
+    const isRunning = response.result.is_running;
+    
     lastKnownLocalHeight = latest_block_height;
     console.log('Local RPC block height:', latest_block_height);
-    return latest_block_height;
+    return {
+      height: latest_block_height,
+      isCatchingUp,
+      isRunning
+    };
   } catch (err) {
     console.error('Error processing local RPC block data:', err.message);
-    return lastKnownLocalHeight;
+    return {
+      height: lastKnownLocalHeight,
+      isCatchingUp: null,
+      isRunning: false
+    };
   }
 };
 
 export const compareBlockHeights = async () => {
   const remoteHeight = await processLatestBlockFromAPI();
-  const localHeight = await processLatestBlockFromLocal();
+  const localData = await processLatestBlockFromLocal();
 
   if (!remoteHeight) {
     return {
@@ -92,36 +103,47 @@ export const compareBlockHeights = async () => {
     };
   }
 
-  if (!localHeight) {
+  if (!localData.height) {
     return {
       success: true,
       message: `⚠️ ATTENTION: Local node is not responding! \nLast known local block: ${lastKnownLocalHeight || 'Unknown'}\nRemote Block: ${remoteHeight}`
     };
   }
 
-  const difference = Math.abs(remoteHeight - localHeight);
+  const difference = Math.abs(remoteHeight - localData.height);
   
   if (difference < BLOCK_HEIGHT_DIFFERENCE_THRESHOLD && wasNodeBehind) {
     wasNodeBehind = false;
     return {
       success: true,
-      message: `✅ Node synchronization recovered! \nLocal Block: ${localHeight}\nRemote Block: ${remoteHeight}`,
+      message: `✅ Node synchronization recovered! \nLocal Block: ${localData.height}\nRemote Block: ${remoteHeight}`,
       isRecovered: true
     };
   }
-
+  console.log(localData.isCatchingUp , difference , localData.isRunning);
   if (difference >= BLOCK_HEIGHT_DIFFERENCE_THRESHOLD && difference % 5 === 0) {
-    wasNodeBehind = true; 
+    wasNodeBehind = true;
+
+    // Node durumu kontrolü
+    let statusMessage;  // undefined yerine boş string ile başlatmayalım
+    if (!localData.isRunning) {
+      statusMessage = '⛔️ Node is stopped';
+    } else if (localData.isCatchingUp || difference > 0) {  // Blok farkı varsa da syncing kabul et
+      statusMessage = '🔄 Node is syncing';
+    } else {
+      statusMessage = '✅ Node is running';
+    }
+
     if (difference >= BLOCK_HEIGHT_DIFFERENCE_CONSECUTIVE_THRESHOLD) {
       return {
         success: true,
-        message: `🔴🔴 CRITICAL WARNING: Your node is ${difference} blocks behind! \nLocal Block: ${localHeight}\nRemote Block: ${remoteHeight}`,
+        message: `🔴🔴 CRITICAL WARNING: Your node is ${difference} blocks behind! \nLocal Block: ${localData.height}\nRemote Block: ${remoteHeight}\nStatus: ${statusMessage}`,
         isConsecutive: true
       };
     } else {
       return {
         success: true,
-        message: `🔴 WARNING: Your node is ${difference} blocks behind! \nLocal Block: ${localHeight}\nRemote Block: ${remoteHeight}`,
+        message: `🔴 WARNING: Your node is ${difference} blocks behind! \nLocal Block: ${localData.height}\nRemote Block: ${remoteHeight}\nStatus: ${statusMessage}`,
         isConsecutive: false
       };
     }

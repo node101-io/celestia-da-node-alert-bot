@@ -1,0 +1,31 @@
+{
+  "messages": {
+    "en": {
+      "noRemoteResponse": "No response from Remote RPC servers.",
+      "nodeNotResponding": "⚠️ ATTENTION: Local node is not responding! \nLast known local block: {lastBlock}\nRemote Block: {remoteBlock}",
+      "nodeSyncRecovered": "✅ Node synchronization recovered! \nLocal Block: {localBlock}\nRemote Block: {remoteBlock}\nStatus: {status}",
+      "criticalWarning": "🔴🔴 CRITICAL WARNING: Your node is {difference} blocks behind! \nLocal Block: {localBlock}\nRemote Block: {remoteBlock}\nStatus: {status}",
+      "warning": "🔴 WARNING: Your node is {difference} blocks behind! \nLocal Block: {localBlock}\nRemote Block: {remoteBlock}\nStatus: {status}",
+      "rpcCheckError": "❌ RPC Check Error: {message}",
+      "status": {
+        "stopped": "⛔️ Node is stopped",
+        "syncing": "🔄 Node is syncing",
+        "running": "✅ Node is running"
+      }
+    },
+    "tr": {
+      "noRemoteResponse": "Remote RPC sunucularından yanıt alınamıyor.",
+      "nodeNotResponding": "⚠️ DİKKAT: Yerel node yanıt vermiyor! \nSon bilinen yerel blok: {lastBlock}\nUzak Blok: {remoteBlock}",
+      "nodeSyncRecovered": "✅ Node senkronizasyonu düzeldi! \nYerel Blok: {localBlock}\nUzak Blok: {remoteBlock}\nDurum: {status}",
+      "criticalWarning": "🔴🔴 KRİTİK UYARI: Node'unuz {difference} blok geride! \nYerel Blok: {localBlock}\nUzak Blok: {remoteBlock}\nDurum: {status}",
+      "warning": "🔴 UYARI: Node'unuz {difference} blok geride! \nYerel Blok: {localBlock}\nUzak Blok: {remoteBlock}\nDurum: {status}",
+      "rpcCheckError": "❌ RPC Kontrol Hatası: {message}",
+      "status": {
+        "stopped": "⛔️ Node durdu",
+        "syncing": "🔄 Node senkronize oluyor",
+        "running": "✅ Node çalışıyor"
+      }
+    }
+  },
+  "defaultLanguage": "en"
+} 

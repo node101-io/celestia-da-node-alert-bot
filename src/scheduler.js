@@ -1,13 +1,15 @@
 import { Cron } from 'croner';
 import { compareBlockHeights } from './rpcBlock.js';
 import sendTelegramMessage from './sendTelegramMessages.js';
+import config from './config.json' assert { type: "json" };
 
 new Cron('*/5 * * * * *', async () => {
   const result = await compareBlockHeights();
   
   if (!result.success) {
-    console.log('❌ RPC Check Error: ' + result.message);
-    await sendTelegramMessage('❌ RPC Check Error: ' + result.message);
+    const errorMessage = formatMessage('rpcCheckError', { message: result.message });
+    console.log(errorMessage);
+    await sendTelegramMessage(errorMessage);
     return;
   }
 

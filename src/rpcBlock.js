@@ -1,4 +1,6 @@
 import dotenv from 'dotenv';
+import config from './config.json' assert { type: "json" };
+
 dotenv.config();
 const BLOCK_HEIGHT_DIFFERENCE_THRESHOLD = 5;
 const BLOCK_HEIGHT_DIFFERENCE_CONSECUTIVE_THRESHOLD = 50;
@@ -92,6 +94,25 @@ export const processLatestBlockFromLocal = async () => {
   }
 };
 
+// Mesaj formatlama yardımcı fonksiyonu
+const formatMessage = (messageKey, params = {}, language = config.defaultLanguage) => {
+  let message = config.messages[language][messageKey];
+  
+  // Parametreleri yerleştir
+  Object.keys(params).forEach(key => {
+    message = message.replace(`{${key}}`, params[key]);
+  });
+  
+  return message;
+};
+
+// Status mesajını al
+const getStatusMessage = (isRunning, isCatchingUp, language = config.defaultLanguage) => {
+  if (!isRunning) return config.messages[language].status.stopped;
+  if (isCatchingUp) return config.messages[language].status.syncing;
+  return config.messages[language].status.running;
+};
+
 export const compareBlockHeights = async () => {
   const remoteHeight = await processLatestBlockFromAPI();
   const localData = await processLatestBlockFromLocal();
@@ -99,14 +120,17 @@ export const compareBlockHeights = async () => {
   if (!remoteHeight) {
     return {
       success: false,
-      message: 'No response from Remote RPC servers.'
+      message: formatMessage('noRemoteResponse')
     };
   }
 
   if (!localData.height) {
     return {
       success: true,
-      message: `⚠️ ATTENTION: Local node is not responding! \nLast known local block: ${lastKnownLocalHeight || 'Unknown'}\nRemote Block: ${remoteHeight}`
+      message: formatMessage('nodeNotResponding', {
+        lastBlock: lastKnownLocalHeight || 'Unknown',
+        remoteBlock: remoteHeight
+      })
     };
   }
 
@@ -114,36 +138,42 @@ export const compareBlockHeights = async () => {
   
   if (difference < BLOCK_HEIGHT_DIFFERENCE_THRESHOLD && wasNodeBehind) {
     wasNodeBehind = false;
+    const status = getStatusMessage(localData.isRunning, localData.isCatchingUp);
     return {
       success: true,
-      message: `✅ Node synchronization recovered! \nLocal Block: ${localData.height}\nRemote Block: ${remoteHeight}`,
+      message: formatMessage('nodeSyncRecovered', {
+        localBlock: localData.height,
+        remoteBlock: remoteHeight,
+        status
+      }),
       isRecovered: true
     };
   }
-  console.log(localData.isCatchingUp , difference , localData.isRunning);
+
   if (difference >= BLOCK_HEIGHT_DIFFERENCE_THRESHOLD && difference % 5 === 0) {
     wasNodeBehind = true;
-
-    // Node durumu kontrolü
-    let statusMessage;  // undefined yerine boş string ile başlatmayalım
-    if (!localData.isRunning) {
-      statusMessage = '⛔️ Node is stopped';
-    } else if (localData.isCatchingUp || difference > 0) {  // Blok farkı varsa da syncing kabul et
-      statusMessage = '🔄 Node is syncing';
-    } else {
-      statusMessage = '✅ Node is running';
-    }
+    const status = getStatusMessage(localData.isRunning, localData.isCatchingUp || difference > 0);
 
     if (difference >= BLOCK_HEIGHT_DIFFERENCE_CONSECUTIVE_THRESHOLD) {
       return {
         success: true,
-        message: `🔴🔴 CRITICAL WARNING: Your node is ${difference} blocks behind! \nLocal Block: ${localData.height}\nRemote Block: ${remoteHeight}\nStatus: ${statusMessage}`,
+        message: formatMessage('criticalWarning', {
+          difference,
+          localBlock: localData.height,
+          remoteBlock: remoteHeight,
+          status
+        }),
         isConsecutive: true
       };
     } else {
       return {
         success: true,
-        message: `🔴 WARNING: Your node is ${difference} blocks behind! \nLocal Block: ${localData.height}\nRemote Block: ${remoteHeight}\nStatus: ${statusMessage}`,
+        message: formatMessage('warning', {
+          difference,
+          localBlock: localData.height,
+          remoteBlock: remoteHeight,
+          status
+        }),
         isConsecutive: false
       };
     }
